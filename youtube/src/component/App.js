@@ -2,31 +2,19 @@ import React, { useState, useEffect } from 'react';
 import SearchBar from './search_bar';
 import VideoList from './video_list';
 import VideoDetail from './video_detail';
-import KEY from '../apis/youtube';
+import useVideos from '../hooks/use_videos';
 
 const App = () => {
-  const [videos, setVideos] = useState([])
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [videos, search] = useVideos("buildings");
 
-  useEffect((term) => {
-    onTermSubmit(term);
-  }, [])
-
-  const onTermSubmit = async (term) => {
-    const received = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${term}&type=video&key=${KEY}`)
-      .then(response => response.json());
-    console.log(received);
-    setVideos(received.items);
-    setSelectedVideo(received.items[0])
-  }
-
-  const onVideoSelect = video => {
-    setSelectedVideo(video);
-  }
+  useEffect(() => {
+    setSelectedVideo(videos[0]);
+  }, [videos]);
 
   return (
     <div className="ui container">
-      <div><SearchBar onTermSubmit={onTermSubmit} /></div>
+      <div><SearchBar onTermSubmit={search} /></div>
       <div className="ui grid">
         <div className="ui row">
           <div className="eleven wide column">
@@ -34,7 +22,7 @@ const App = () => {
           </div>
           <div className="five wide column">
             <VideoList
-              onVideoSelect={onVideoSelect}
+              onVideoSelect={setSelectedVideo}
               videos={videos}
             />
           </div>
